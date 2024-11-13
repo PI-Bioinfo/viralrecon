@@ -1,6 +1,6 @@
 process ASCIIGENOME {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_high_memory'
 
     conda "bioconda::asciigenome=1.16.0 bioconda::bedtools=2.30.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

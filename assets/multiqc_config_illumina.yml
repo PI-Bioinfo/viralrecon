@@ -289,6 +289,12 @@ custom_data:
       namespace: "Samples failed mapping read threshold"
       format: "{:,.0f}"
 
+kraken2:
+  taxonomic_level: "species"
+  include_bracken: false
+  display_tree: true
+  top_n: 10
+
 extra_fn_clean_exts:
   - ".markduplicates"
   - ".unclassified"

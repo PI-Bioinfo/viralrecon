@@ -37,7 +37,7 @@ def parse_args(args=None):
     parser.add_argument(
         "-is",
         "--ignore_strand_bias",
-        default=False,
+        default=True,
         help="Does not take strand bias into account, use this option when not using amplicon sequencing.",
         action="store_true",
     )

@@ -14,6 +14,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_vira
     VALIDATE INPUTS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+params.viral_db = null
 
 def valid_params = [
     protocols         : ['metagenomic', 'amplicon'],
@@ -68,6 +69,7 @@ include { CUTADAPT } from '../modules/local/cutadapt'
 include { MULTIQC  } from '../modules/local/multiqc_illumina'
 include { PLOT_MOSDEPTH_REGIONS as PLOT_MOSDEPTH_REGIONS_GENOME   } from '../modules/local/plot_mosdepth_regions'
 include { PLOT_MOSDEPTH_REGIONS as PLOT_MOSDEPTH_REGIONS_AMPLICON } from '../modules/local/plot_mosdepth_regions'
+include { KRAKEN2_UNCLASSIFIED_REMAP    } from '../modules/local/kraken2_viral_remap'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -268,6 +270,19 @@ workflow ILLUMINA {
         if (params.kraken2_assembly_host_filter) {
             ch_assembly_fastq = KRAKEN2_KRAKEN2.out.unclassified_reads_fastq
         }
+    }
+
+    //
+    // MODULE: Run Kraken2 for the taxonomy classification of de-host sequence
+    //
+    if (!params.skip_classification) {
+        KRAKEN2_UNCLASSIFIED_REMAP (
+            KRAKEN2_KRAKEN2.out.unclassified_reads_fastq,
+            params.viral_db,
+            params.kraken2_variants_host_filter || params.kraken2_assembly_host_filter,
+            params.kraken2_variants_host_filter || params.kraken2_assembly_host_filter
+        )
+        ch_kraken2_multiqc = ch_kraken2_multiqc.mix(KRAKEN2_UNCLASSIFIED_REMAP.out.report)
     }
 
     //
